@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Return Book - Library Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>↩️ Return a Book</h1>
+        <div class="card">
+            {% if error %}
+                <div class="error">⚠️ {{ error }}</div>
+            {% endif %}
+            
+            {% if message %}
+                <div class="message">✅ {{ message }}</div>
+            {% endif %}
+            
+            <form method="POST">
+                <div class="form-group">
+                    <label for="name">Your Name:</label>
+                    <input type="text" id="name" name="name" class="form-control" placeholder="Enter your full name" required>
+                </div>
+                <div style="text-align: center;">
+                    <input type="submit" value="📋 Show My Borrowed Books" class="btn btn-success">
+                </div>
+            </form>
+            
+            {% if books %}
+                <div class="search-results">
+                    <h2>📚 Your Borrowed Books</h2>
+                    <form method="POST">
+                        <input type="hidden" name="name" value="{{ request.form.name }}">
+                        <div class="radio-group">
+                            {% for i in range(books|length) %}
+                                <div class="radio-item">
+                                    <input type="radio" id="return{{ i + 1 }}" name="book_choice" value="{{ i + 1 }}" required>
+                                    <label for="return{{ i + 1 }}" style="margin: 0; cursor: pointer; flex: 1;">
+                                        <div class="book-title">{{ books[i].title }}</div>
+                                        <div class="book-author">by {{ books[i].author }}</div>
+                                        {% if calculate_fine(books[i]) > 0 %}
+                                            <span class="fine-amount">💰 Fine: ₹{{ calculate_fine(books[i]) }}</span>
+                                        {% endif %}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div style="text-align: center; margin-top: 2rem;">
+                            <input type="submit" value="📤 Return Selected Book" class="btn btn-success">
+                        </div>
+                    </form>
+                </div>
+            {% endif %}
+            
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">🏠 Back to Home</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

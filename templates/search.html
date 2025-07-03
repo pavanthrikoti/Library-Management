@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Books - Library Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Search Books</h1>
+        <div class="card">
+            <form method="POST">
+                <div class="form-group">
+                    <label for="search_term">Search by Title or Author:</label>
+                    <input type="text" id="search_term" name="search_term" class="form-control" placeholder="Enter book title or author name" required>
+                </div>
+                <div style="text-align: center;">
+                    <input type="submit" value="🔍 Search Books" class="btn btn-success">
+                </div>
+            </form>
+            
+            {% if error %}
+                <div class="error">⚠️ {{ error }}</div>
+            {% endif %}
+            
+            {% if books %}
+                <div class="search-results">
+                    <h2>📖 Books matching <span class="search-term">'{{ search_term }}'</span></h2>
+                    <ul class="book-list">
+                    {% for book in books %}
+                        <li class="book-item">
+                            <div class="book-title">{{ book.title }}</div>
+                            <div class="book-author">by {{ book.author }}</div>
+                            <div class="book-status-container">
+                                {% if book.available %}
+                                    <span class="book-status status-available">✅ Available</span>
+                                {% else %}
+                                    <span class="book-status status-borrowed">🔒 Borrowed by {{ book.borrower }}</span>
+                                    {% if calculate_fine(book) > 0 %}
+                                        <span class="fine-amount">💰 Fine: ₹{{ calculate_fine(book) }}</span>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">🏠 Back to Home</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

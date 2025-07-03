@@ -1,0 +1,54 @@
+[
+    {
+        "title": "143",
+        "author": "pavan",
+        "available": true,
+        "borrower": null,
+        "borrow_date": null,
+        "due_date": null
+    },
+    {
+        "title": "to u",
+        "author": "bapu",
+        "available": false,
+        "borrower": "ramesh"
+    },
+    {
+        "title": "hi baby",
+        "author": "pavan",
+        "available": true,
+        "borrower": null
+    },
+    {
+        "title": "jee mains",
+        "author": "hc verma",
+        "available": true,
+        "borrower": null,
+        "borrow_date": null,
+        "due_date": null
+    },
+    {
+        "title": "gate",
+        "author": "rao",
+        "available": true,
+        "borrower": null,
+        "borrow_date": null,
+        "due_date": null
+    },
+    {
+        "title": "physics",
+        "author": "hc verma",
+        "available": true,
+        "borrower": null,
+        "borrow_date": null,
+        "due_date": null
+    },
+    {
+        "title": "gate cse",
+        "author": "pavan",
+        "available": true,
+        "borrower": null,
+        "borrow_date": null,
+        "due_date": null
+    }
+]

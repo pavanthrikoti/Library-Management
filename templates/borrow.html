@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borrow Book - Library Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Borrow a Book</h1>
+        <div class="card">
+            {% if error %}
+                <div class="error">⚠️ {{ error }}</div>
+            {% endif %}
+            
+            {% if books %}
+                <form method="POST">
+                    <div class="form-group">
+                        <label for="name">Your Name:</label>
+                        <input type="text" id="name" name="name" class="form-control" placeholder="Enter your full name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Select a Book:</label>
+                        <div class="radio-group">
+                            {% for i in range(books|length) %}
+                                <div class="radio-item">
+                                    <input type="radio" id="book{{ i + 1 }}" name="book_choice" value="{{ i + 1 }}" required>
+                                    <label for="book{{ i + 1 }}" style="margin: 0; cursor: pointer; flex: 1;">
+                                        <div class="book-title">{{ books[i].title }}</div>
+                                        <div class="book-author">by {{ books[i].author }}</div>
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 2rem;">
+                        <input type="submit" value="📖 Borrow Book" class="btn btn-success">
+                        <a href="{{ url_for('index') }}" class="btn btn-secondary" style="margin-left: 1rem;">🏠 Back to Home</a>
+                    </div>
+                </form>
+            {% else %}
+                <div style="text-align: center;">
+                    <p style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 2rem;">
+                        📭 No books are currently available to borrow.
+                    </p>
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary">🏠 Back to Home</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

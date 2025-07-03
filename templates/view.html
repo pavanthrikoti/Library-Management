@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Books - Library Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Library Books</h1>
+        <div class="card">
+            {% if books %}
+                <ul class="book-list">
+                {% for book in books %}
+                    <li class="book-item">
+                        <div class="book-title">{{ book.title }}</div>
+                        <div class="book-author">by {{ book.author }}</div>
+                        <div class="book-status-container">
+                            {% if book.available %}
+                                <span class="book-status status-available">✅ Available</span>
+                            {% else %}
+                                <span class="book-status status-borrowed">🔒 Borrowed by {{ book.borrower }}</span>
+                                {% if calculate_fine(book) > 0 %}
+                                    <span class="fine-amount">💰 Fine: ₹{{ calculate_fine(book) }}</span>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p style="text-align: center; color: var(--text-secondary); font-size: 1.1rem;">
+                    📭 No books in the library yet.
+                </p>
+            {% endif %}
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">🏠 Back to Home</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

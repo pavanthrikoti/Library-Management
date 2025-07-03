@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Book - Library Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>➕ Add New Book</h1>
+        <div class="card">
+            {% if error %}
+                <div class="error">⚠️ {{ error }}</div>
+            {% endif %}
+            <form method="POST">
+                <div class="form-group">
+                    <label for="title">Book Title:</label>
+                    <input type="text" id="title" name="title" class="form-control" placeholder="Enter book title" required>
+                </div>
+                <div class="form-group">
+                    <label for="author">Author Name:</label>
+                    <input type="text" id="author" name="author" class="form-control" placeholder="Enter author name" required>
+                </div>
+                <div style="text-align: center; margin-top: 2rem;">
+                    <input type="submit" value="📚 Add Book" class="btn btn-success">
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary" style="margin-left: 1rem;">🏠 Back to Home</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

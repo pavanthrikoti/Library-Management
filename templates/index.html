@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Library Management System</h1>
+        <div class="card">
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('add_book') }}" class="btn btn-primary">➕ Add Book</a></li>
+                <li><a href="{{ url_for('view_books') }}" class="btn btn-primary">📖 View Books</a></li>
+                <li><a href="{{ url_for('borrow_book') }}" class="btn btn-primary">📚 Borrow Book</a></li>
+                <li><a href="{{ url_for('return_book') }}" class="btn btn-primary">↩️ Return Book</a></li>
+                <li><a href="{{ url_for('search_books') }}" class="btn btn-primary">🔍 Search Books</a></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
