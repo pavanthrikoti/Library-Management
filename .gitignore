@@ -1,0 +1,10 @@
+pycache/
+*.pyc 
+*.pyo 
+*.pyd 
+.Python 
+env/ 
+venv/ 
+*.env 
+books.json 
+*.log

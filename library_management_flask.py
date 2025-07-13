@@ -1,15 +1,37 @@
-# Flask-based Library Management System with Borrower Tracking, Search, and Fines
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 import json
 import os
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
+app.secret_key = 'your-secret-key-1234567890'  # Replace with a secure key in production
+
+# Initialize Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+# User model for Flask-Login
+class User(UserMixin):
+    def __init__(self, id, username):
+        self.id = id
+        self.username = username
+
+# Mock user database (replace with real database in production)
+users = {'admin': {'password': 'admin123', 'id': '1'}}
+
+@login_manager.user_loader
+def load_user(user_id):
+    for username, data in users.items():
+        if data['id'] == user_id:
+            return User(user_id, username)
+    return None
 
 # File to store books
 BOOKS_FILE = "books.json"
 
-# Load books from file or initialize empty list
+# Load books from file
 def load_books():
     if os.path.exists(BOOKS_FILE):
         try:
@@ -38,7 +60,6 @@ def save_books(books):
     with open(BOOKS_FILE, "w") as file:
         json.dump(books_copy, file, indent=4)
 
-# Initialize books list
 books = load_books()
 
 def calculate_fine(book):
@@ -50,22 +71,42 @@ def calculate_fine(book):
         return days_overdue * 1  # 1 rupee per day
     return 0
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username'].strip()
+        password = request.form['password'].strip()
+        if username in users and users[username]['password'] == password:
+            user = User(users[username]['id'], username)
+            login_user(user)
+            return redirect(url_for('index'))
+        flash('Invalid username or password')
+    return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
 @app.route('/add', methods=['GET', 'POST'])
+@login_required
 def add_book():
     if request.method == 'POST':
         title = request.form['title'].strip()
         author = request.form['author'].strip()
         if not title or not author:
-            return render_template('add.html', error="Title and author cannot be empty!")
+            flash("Title and author cannot be empty!")
+            return render_template('add.html')
         book = {"title": title, "author": author, "available": True, "borrower": None, "borrow_date": None, "due_date": None}
         books.append(book)
         save_books(books)
         return redirect(url_for('view_books'))
-    return render_template('add.html', error=None)
+    return render_template('add.html')
 
 @app.route('/view')
 def view_books():
@@ -76,20 +117,23 @@ def search_books():
     if request.method == 'POST':
         search_term = request.form['search_term'].strip().lower()
         if not search_term:
-            return render_template('search.html', error="Search term cannot be empty!", books=[])
+            flash("Search term cannot be empty!")
+            return render_template('search.html', books=[])
         matching_books = [
             book for book in books
             if search_term in book["title"].lower() or search_term in book["author"].lower()
         ]
         return render_template('search.html', books=matching_books, calculate_fine=calculate_fine, search_term=search_term)
-    return render_template('search.html', books=[], error=None)
+    return render_template('search.html', books=[])
 
 @app.route('/borrow', methods=['GET', 'POST'])
+@login_required
 def borrow_book():
     if request.method == 'POST':
         name = request.form['name'].strip()
         if not name:
-            return render_template('borrow.html', error="Name cannot be empty!", books=[b for b in books if b["available"]])
+            flash("Name cannot be empty!")
+            return render_template('borrow.html', books=[b for b in books if b["available"]])
         try:
             choice = int(request.form['book_choice']) - 1
             available_books = [b for b in books if b["available"]]
@@ -102,20 +146,25 @@ def borrow_book():
                 save_books(books)
                 return redirect(url_for('view_books'))
             else:
-                return render_template('borrow.html', error="Invalid book number!", books=available_books)
+                flash("Invalid book number!")
+                return render_template('borrow.html', books=available_books)
         except ValueError:
-            return render_template('borrow.html', error="Please enter a valid number!", books=available_books)
-    return render_template('borrow.html', books=[b for b in books if b["available"]], error=None)
+            flash("Please enter a valid number!")
+            return render_template('borrow.html', books=available_books)
+    return render_template('borrow.html', books=[b for b in books if b["available"]])
 
 @app.route('/return', methods=['GET', 'POST'])
+@login_required
 def return_book():
     if request.method == 'POST':
         name = request.form['name'].strip()
         if not name:
-            return render_template('return.html', error="Name cannot be empty!", books=[])
+            flash("Name cannot be empty!")
+            return render_template('return.html', books=[])
         borrowed_books = [b for b in books if not b["available"] and b["borrower"] == name]
         if not borrowed_books:
-            return render_template('return.html', error=f"No books borrowed by {name}.", books=[])
+            flash(f"No books borrowed by {name}.")
+            return render_template('return.html', books=[])
         if 'book_choice' in request.form:
             try:
                 choice = int(request.form['book_choice']) - 1
@@ -132,11 +181,13 @@ def return_book():
                         message += f". Please pay a fine of ₹{fine}."
                     return render_template('return.html', message=message, books=[])
                 else:
-                    return render_template('return.html', error="Invalid book number!", books=borrowed_books, calculate_fine=calculate_fine)
+                    flash("Invalid book number!")
+                    return render_template('return.html', books=borrowed_books, calculate_fine=calculate_fine)
             except ValueError:
-                return render_template('return.html', error="Please enter a valid number!", books=borrowed_books, calculate_fine=calculate_fine)
-        return render_template('return.html', books=borrowed_books, calculate_fine=calculate_fine, error=None)
-    return render_template('return.html', books=[], error=None)
+                flash("Please enter a valid number!")
+                return render_template('return.html', books=borrowed_books, calculate_fine=calculate_fine)
+        return render_template('return.html', books=borrowed_books, calculate_fine=calculate_fine)
+    return render_template('return.html', books=[])
 
 if __name__ == '__main__':
     app.run(debug=True)

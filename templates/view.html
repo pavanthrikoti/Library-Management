@@ -1,43 +1,68 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Books - Library Management</title>
+    <title>View Books</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
+    <div id="preloader">
+        <div class="preloader-book"></div>
+    </div>
+    <header>
+        <div class="container">
+            <h1>Library Management System</h1>
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('add_book') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Add Book</a></li>
+                <li><a href="{{ url_for('view_books') }}" class="btn btn-primary"><i class="fas fa-book"></i> View Books</a></li>
+                <li><a href="{{ url_for('borrow_book') }}" class="btn btn-primary"><i class="fas fa-book-reader"></i> Borrow Book</a></li>
+                <li><a href="{{ url_for('return_book') }}" class="btn btn-primary"><i class="fas fa-undo"></i> Return Book</a></li>
+                <li><a href="{{ url_for('search_books') }}" class="btn btn-primary"><i class="fas fa-search"></i> Search Books</a></li>
+                {% if current_user.is_authenticated %}
+                    <li><a href="{{ url_for('logout') }}" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </header>
     <div class="container">
-        <h1>📚 Library Books</h1>
         <div class="card">
+            <h2>Library Books</h2>
             {% if books %}
                 <ul class="book-list">
                 {% for book in books %}
                     <li class="book-item">
-                        <div class="book-title">{{ book.title }}</div>
-                        <div class="book-author">by {{ book.author }}</div>
-                        <div class="book-status-container">
-                            {% if book.available %}
-                                <span class="book-status status-available">✅ Available</span>
-                            {% else %}
-                                <span class="book-status status-borrowed">🔒 Borrowed by {{ book.borrower }}</span>
-                                {% if calculate_fine(book) > 0 %}
-                                    <span class="fine-amount">💰 Fine: ₹{{ calculate_fine(book) }}</span>
-                                {% endif %}
-                            {% endif %}
+                        <div class="book-info">
+                            <div class="book-title">{{ book.title }}</div>
+                            <div class="book-author">by {{ book.author }}</div>
                         </div>
+                        <span class="book-status {{ 'status-available' if book.available else 'status-borrowed' }}">
+                            <i class="fas {{ 'fa-check-circle' if book.available else 'fa-lock' }}"></i>
+                            {{ 'Available' if book.available else 'Borrowed by ' + book.borrower }}
+                            {% if not book.available and calculate_fine(book) > 0 %}
+                                <span class="fine-amount"><i class="fas fa-coins"></i> Fine: ₹{{ calculate_fine(book) }}</span>
+                            {% endif %}
+                        </span>
                     </li>
                 {% endfor %}
                 </ul>
             {% else %}
-                <p style="text-align: center; color: var(--text-secondary); font-size: 1.1rem;">
-                    📭 No books in the library yet.
-                </p>
+                <p class="error"><i class="fas fa-inbox"></i> No books in the library yet.</p>
             {% endif %}
-            <div style="text-align: center; margin-top: 2rem;">
-                <a href="{{ url_for('index') }}" class="btn btn-secondary">🏠 Back to Home</a>
-            </div>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary"><i class="fas fa-home"></i> Back to Home</a>
         </div>
     </div>
+    <footer>
+        <div class="container">
+            <p>© 2025 Library Management System. All rights reserved.</p>
+        </div>
+    </footer>
+    <script>
+        window.onload = function() {
+            document.getElementById('preloader').style.opacity = '0';
+            setTimeout(() => { document.getElementById('preloader').style.display = 'none'; }, 500);
+        };
+    </script>
 </body>
 </html>

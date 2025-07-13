@@ -1,55 +1,77 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Borrow Book - Library Management</title>
+    <title>Borrow Book</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
+    <div id="preloader">
+        <div class="preloader-book"></div>
+    </div>
+    <header>
+        <div class="container">
+            <h1>Library Management System</h1>
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('add_book') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Add Book</a></li>
+                <li><a href="{{ url_for('view_books') }}" class="btn btn-primary"><i class="fas fa-book"></i> View Books</a></li>
+                <li><a href="{{ url_for('borrow_book') }}" class="btn btn-primary"><i class="fas fa-book-reader"></i> Borrow Book</a></li>
+                <li><a href="{{ url_for('return_book') }}" class="btn btn-primary"><i class="fas fa-undo"></i> Return Book</a></li>
+                <li><a href="{{ url_for('search_books') }}" class="btn btn-primary"><i class="fas fa-search"></i> Search Books</a></li>
+                {% if current_user.is_authenticated %}
+                    <li><a href="{{ url_for('logout') }}" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}" class="btn btn-primary"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </header>
     <div class="container">
-        <h1>📚 Borrow a Book</h1>
         <div class="card">
-            {% if error %}
-                <div class="error">⚠️ {{ error }}</div>
-            {% endif %}
-            
+            <h2>Borrow a Book</h2>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <p class="error"><i class="fas fa-exclamation-circle"></i> {{ messages[0] }}</p>
+                {% endif %}
+            {% endwith %}
             {% if books %}
                 <form method="POST">
                     <div class="form-group">
-                        <label for="name">Your Name:</label>
-                        <input type="text" id="name" name="name" class="form-control" placeholder="Enter your full name" required>
+                        <label>Your Name:</label>
+                        <input type="text" name="name" class="form-control" placeholder="Enter your name">
                     </div>
-                    
                     <div class="form-group">
                         <label>Select a Book:</label>
                         <div class="radio-group">
                             {% for i in range(books|length) %}
-                                <div class="radio-item">
-                                    <input type="radio" id="book{{ i + 1 }}" name="book_choice" value="{{ i + 1 }}" required>
-                                    <label for="book{{ i + 1 }}" style="margin: 0; cursor: pointer; flex: 1;">
+                                <label class="radio-item">
+                                    <input type="radio" name="book_choice" value="{{ i + 1 }}">
+                                    <div class="book-info">
                                         <div class="book-title">{{ books[i].title }}</div>
                                         <div class="book-author">by {{ books[i].author }}</div>
-                                    </label>
-                                </div>
+                                    </div>
+                                </label>
                             {% endfor %}
                         </div>
                     </div>
-                    
-                    <div style="text-align: center; margin-top: 2rem;">
-                        <input type="submit" value="📖 Borrow Book" class="btn btn-success">
-                        <a href="{{ url_for('index') }}" class="btn btn-secondary" style="margin-left: 1rem;">🏠 Back to Home</a>
-                    </div>
+                    <button type="submit" class="btn btn-success"><i class="fas fa-book-reader"></i> Borrow</button>
                 </form>
             {% else %}
-                <div style="text-align: center;">
-                    <p style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 2rem;">
-                        📭 No books are currently available to borrow.
-                    </p>
-                    <a href="{{ url_for('index') }}" class="btn btn-secondary">🏠 Back to Home</a>
-                </div>
+                <p class="error"><i class="fas fa-inbox"></i> No books are currently available to borrow.</p>
             {% endif %}
+            <a href="{{ url_for('index') }}" class="btn btn-secondary"><i class="fas fa-home"></i> Back to Home</a>
         </div>
     </div>
+    <footer>
+        <div class="container">
+            <p>© 2025 Library Management System. All rights reserved.</p>
+        </div>
+    </footer>
+    <script>
+        window.onload = function() {
+            document.getElementById('preloader').style.opacity = '0';
+            setTimeout(() => { document.getElementById('preloader').style.display = 'none'; }, 500);
+        };
+    </script>
 </body>
 </html>
